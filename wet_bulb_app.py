@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 API_KEY = "ee4a54840d7fc3dcee7ef40695cb437c"
+OPENWEATHERMAP_URL = "http://api.openweathermap.org/data/2.5/weather"
 
 def get_weather_data(city_name):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric"
@@ -108,6 +109,7 @@ def main():
         st.info(f"Removed {remove_city} from the graph.")
         fig, ax = plot_graph(city_names)
 
+    st.markdown("Weather data provided by [OpenWeatherMap](https://openweathermap.org/).")
     st.pyplot(fig)
 
 if __name__ == "__main__":
