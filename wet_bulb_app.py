@@ -109,8 +109,8 @@ def main():
         st.info(f"Removed {remove_city} from the graph.")
         fig, ax = plot_graph(city_names)
 
-    st.markdown("Weather data provided by [OpenWeatherMap](https://openweathermap.org/).")
     st.pyplot(fig)
+    st.markdown("Weather data provided by [OpenWeatherMap](https://openweathermap.org/).")
 
 if __name__ == "__main__":
     main()
