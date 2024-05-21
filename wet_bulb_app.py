@@ -7,7 +7,7 @@ API_KEY = "ee4a54840d7fc3dcee7ef40695cb437c"
 OPENWEATHERMAP_URL = "http://api.openweathermap.org/data/2.5/weather"
 
 def get_weather_data(city_name):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric"
+    url = f"{OPENWEATHERMAP_URL}?q={city_name}&appid={API_KEY}&units=metric"
     response = requests.get(url)
     data = response.json()
     if response.status_code == 200:
@@ -26,13 +26,11 @@ def plot_graph(city_names, fig=None, ax=None):
     if fig is None or ax is None:
         fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Initialize lists to store data
     wet_bulb_temps = []
     temperatures = []
     humidities = []
     high_wet_bulb_cities = []
 
-    # Fetch data for each city and store it
     for city_name in city_names:
         temp, humidity = get_weather_data(city_name)
         if temp is not None and humidity is not None:
@@ -48,7 +46,6 @@ def plot_graph(city_names, fig=None, ax=None):
     normalized_wet_bulb_temps = [(temp - min_wet_bulb_temp) / (max_wet_bulb_temp - min_wet_bulb_temp) for temp in wet_bulb_temps]
 
     ax.clear()
-
     scatter = ax.scatter(temperatures, humidities, s=np.array(normalized_wet_bulb_temps)*800, c=wet_bulb_temps, cmap='coolwarm', alpha=0.8)
     plt.colorbar(scatter, label='Wet Bulb Temperature (°C)')
 
@@ -57,12 +54,10 @@ def plot_graph(city_names, fig=None, ax=None):
 
     ax.set_xlabel('Temperature (°C)')
     ax.set_ylabel('Relative Humidity (%)')
-
-    # Remove top and right border
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    
-    return fig, ax, high_wet_bulb_cities
+
+    return fig, ax, high_wet_bulb_cities, wet_bulb_temps
 
 def main():
     st.set_page_config(layout="wide")
@@ -81,24 +76,30 @@ def main():
     ]
     city_names = coastal_cities
 
-    # Create two columns
     col1, col2, col3 = st.columns([2, 4, 2])
 
     with col2:
         st.title('Wet Bulb Temperature vs Temperature vs Humidity')
-        st.markdown('### Along the Coastal Cities of India')
-        add_city = st.text_input('Add City')
-        remove_city = st.text_input('Remove City')
+        st.markdown('##### Along the Coastal Cities of India')
+        col_add, col_remove = st.columns(2)
+
+        with col_add:
+            add_city = st.text_input('Add City')
+
+        with col_remove:
+            remove_city = st.text_input('Remove City')
+            
         refresh_graph = st.button('Refresh Graph')
 
         fig, ax = None, None
         high_wet_bulb_cities = []
+        wet_bulb_temps = []
 
         if refresh_graph:
-            fig, ax, high_wet_bulb_cities = plot_graph(coastal_cities)
+            fig, ax, high_wet_bulb_cities, wet_bulb_temps = plot_graph(coastal_cities)
             city_names = coastal_cities
         else:
-            fig, ax, high_wet_bulb_cities = plot_graph(city_names, fig, ax)
+            fig, ax, high_wet_bulb_cities, wet_bulb_temps = plot_graph(city_names, fig, ax)
 
         if add_city:
             if add_city not in city_names:
@@ -106,7 +107,7 @@ def main():
                 if temp is not None and humidity is not None:
                     city_names.append(add_city)
                     st.success(f"Added {add_city} to the graph!")
-                    fig, ax, high_wet_bulb_cities = plot_graph(city_names)
+                    fig, ax, high_wet_bulb_cities, wet_bulb_temps = plot_graph(city_names)
                 else:
                     st.error(f"Failed to fetch weather data for {add_city}. Try again.")
             else:
@@ -116,7 +117,7 @@ def main():
             if remove_city in city_names:
                 city_names.remove(remove_city)
                 st.info(f"Removed {remove_city} from the graph.")
-                fig, ax, high_wet_bulb_cities = plot_graph(city_names)
+                fig, ax, high_wet_bulb_cities, wet_bulb_temps = plot_graph(city_names)
             else:
                 st.warning(f"{remove_city} is not in the graph.")
 
@@ -136,15 +137,18 @@ def main():
     Understanding these thresholds is vital for individual well-being, especially in hot, humid climates.
 """)
 
-        
-        
     with col3:
         if high_wet_bulb_cities:
             st.markdown("### Cities with Wet Bulb Temperature > 32°C")
             for city, wet_bulb_temp in high_wet_bulb_cities:
                 st.markdown(f"- **{city}**: {wet_bulb_temp:.2f}°C")
         else:
-            st.markdown("### All cities are within the threshold of 32°C wet bulb temperature.")
+            st.success("#### 😌🌿 All cities are within the threshold of 32°C wet bulb temperature")
+            sorted_cities = sorted(zip(city_names, wet_bulb_temps), key=lambda x: x[1], reverse=True)
+            top_three_cities = sorted_cities[:3]
+            st.markdown("##### Top three cities with highest Wet Bulb Temperature 🥵")
+            for city, wet_bulb_temp in top_three_cities:
+                st.markdown(f"- **{city}**: {wet_bulb_temp:.2f}°C")
 
         st.markdown("Weather data provided by [OpenWeatherMap](https://openweathermap.org/).")
 
