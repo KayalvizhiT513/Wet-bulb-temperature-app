@@ -30,6 +30,7 @@ def plot_graph(city_names, fig=None, ax=None):
     wet_bulb_temps = []
     temperatures = []
     humidities = []
+    high_wet_bulb_cities = []
 
     # Fetch data for each city and store it
     for city_name in city_names:
@@ -39,6 +40,8 @@ def plot_graph(city_names, fig=None, ax=None):
             wet_bulb_temps.append(wet_bulb_temp)
             temperatures.append(temp)
             humidities.append(humidity)
+            if wet_bulb_temp > 32:
+                high_wet_bulb_cities.append((city_name, wet_bulb_temp))
 
     min_wet_bulb_temp = min(wet_bulb_temps) - 1
     max_wet_bulb_temp = max(wet_bulb_temps) + 1
@@ -59,11 +62,10 @@ def plot_graph(city_names, fig=None, ax=None):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     
-    return fig, ax
+    return fig, ax, high_wet_bulb_cities
 
 def main():
-    st.title('Wet Bulb Temperature vs Temperature vs Humidity')
-    st.markdown('### Along the Coastal Cities of India')
+    st.set_page_config(layout="wide")
 
     coastal_cities = [
         "Mumbai",
@@ -78,39 +80,73 @@ def main():
         "Porbandar"
     ]
     city_names = coastal_cities
-      
-    add_city = st.text_input('Add City')
-    remove_city = st.text_input('Remove City')
-    refresh_graph = st.button('Refresh Graph')
 
-    fig, ax = None, None
+    # Create two columns
+    col1, col2, col3 = st.columns([2, 4, 2])
 
-    if refresh_graph:
-        fig, ax = plot_graph(coastal_cities)
-        city_names = coastal_cities
-    else:
-        fig, ax = plot_graph(city_names, fig, ax)
+    with col2:
+        st.title('Wet Bulb Temperature vs Temperature vs Humidity')
+        st.markdown('### Along the Coastal Cities of India')
+        add_city = st.text_input('Add City')
+        remove_city = st.text_input('Remove City')
+        refresh_graph = st.button('Refresh Graph')
 
-    if add_city:
-        if add_city not in city_names:
-            temp, humidity = get_weather_data(add_city)
-            if temp is not None and humidity is not None:
-                city_names.append(add_city)
-                st.success(f"Added {add_city} to the graph!")
-                fig, ax = plot_graph(city_names)
+        fig, ax = None, None
+        high_wet_bulb_cities = []
 
-            else:
-                st.error(f"Failed to fetch weather data for {add_city}. Try again.")
+        if refresh_graph:
+            fig, ax, high_wet_bulb_cities = plot_graph(coastal_cities)
+            city_names = coastal_cities
         else:
-            st.warning(f"{add_city} is already in the graph.")
+            fig, ax, high_wet_bulb_cities = plot_graph(city_names, fig, ax)
 
-    if remove_city:
-        city_names.remove(remove_city)
-        st.info(f"Removed {remove_city} from the graph.")
-        fig, ax = plot_graph(city_names)
+        if add_city:
+            if add_city not in city_names:
+                temp, humidity = get_weather_data(add_city)
+                if temp is not None and humidity is not None:
+                    city_names.append(add_city)
+                    st.success(f"Added {add_city} to the graph!")
+                    fig, ax, high_wet_bulb_cities = plot_graph(city_names)
+                else:
+                    st.error(f"Failed to fetch weather data for {add_city}. Try again.")
+            else:
+                st.warning(f"{add_city} is already in the graph.")
 
-    st.pyplot(fig)
-    st.markdown("Weather data provided by [OpenWeatherMap](https://openweathermap.org/).")
+        if remove_city:
+            if remove_city in city_names:
+                city_names.remove(remove_city)
+                st.info(f"Removed {remove_city} from the graph.")
+                fig, ax, high_wet_bulb_cities = plot_graph(city_names)
+            else:
+                st.warning(f"{remove_city} is not in the graph.")
+
+        st.pyplot(fig)
+
+    with col1:
+        st.header("About")
+        st.markdown("""
+    This app visualizes wet bulb temperature, temperature, and humidity of coastal cities in India.  
+    Wet bulb temperature is the lowest temperature air can reach via water evaporation,  
+    crucial for assessing heat stress and humidity.
+
+    ***Key thresholds:***
+    - **35°C:** Without cooling and hydration, it can be fatal within 6 hours.
+    - **32°C:** Significant discomfort, emphasizes sun avoidance and hydration to manage heat risks.
+
+    Understanding these thresholds is vital for individual well-being, especially in hot, humid climates.
+""")
+
+        
+        
+    with col3:
+        if high_wet_bulb_cities:
+            st.markdown("### Cities with Wet Bulb Temperature > 32°C")
+            for city, wet_bulb_temp in high_wet_bulb_cities:
+                st.markdown(f"- **{city}**: {wet_bulb_temp:.2f}°C")
+        else:
+            st.markdown("### All cities are within the threshold of 32°C wet bulb temperature.")
+
+        st.markdown("Weather data provided by [OpenWeatherMap](https://openweathermap.org/).")
 
 if __name__ == "__main__":
     main()
