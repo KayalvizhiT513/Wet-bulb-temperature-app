@@ -81,14 +81,8 @@ def main():
     with col2:
         st.title('Wet Bulb Temperature vs Temperature vs Humidity')
         st.markdown('##### Along the Coastal Cities of India')
-        col_add, col_remove = st.beta_columns(2)
-
-        with col_add:
-            add_city = st.text_input('Add City')
-
-        with col_remove:
-            remove_city = st.text_input('Remove City')
-            
+        add_city = st.text_input('Add City')
+        remove_city = st.text_input('Remove City')            
         refresh_graph = st.button('Refresh Graph')
 
         fig, ax = None, None
