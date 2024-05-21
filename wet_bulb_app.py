@@ -81,7 +81,7 @@ def main():
     with col2:
         st.title('Wet Bulb Temperature vs Temperature vs Humidity')
         st.markdown('##### Along the Coastal Cities of India')
-        col_add, col_remove = st.columns([1,1])
+        col_add, col_remove = st.columns(2)
 
         with col_add:
             add_city = st.text_input('Add City')
