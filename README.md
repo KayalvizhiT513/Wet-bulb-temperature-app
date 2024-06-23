@@ -44,12 +44,6 @@ This project uses OpenWeatherMap API to fetch real-time weather data for visuali
    streamlit run main.py
    ```
 2. Open the provided URL in your browser to interact with the visualization.
-
-📄 **License:**
-This project is licensed under the MIT License. See the LICENSE file for more details.
-
-📧 **Contact:**
-- Email: your@email.com
-- LinkedIn: www.linkedin.com/in/kayalvizhi-t
+   https://wet-bulb-temperature-app-1.streamlit.app/
   
 Feel free to contribute or provide feedback!
