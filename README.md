@@ -41,7 +41,7 @@ This project uses OpenWeatherMap API to fetch real-time weather data for visuali
 👩‍💻 **Usage:**
 1. Run the Streamlit app:
    ```
-   streamlit run main.py
+   streamlit run wet_bulb_app.py
    ```
 2. Open the provided URL in your browser to interact with the visualization.
    https://wet-bulb-temperature-app-1.streamlit.app/
