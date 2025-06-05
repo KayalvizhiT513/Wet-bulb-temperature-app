@@ -46,4 +46,4 @@ This project uses OpenWeatherMap API to fetch real-time weather data for visuali
 2. Open the provided URL in your browser to interact with the visualization.
    https://wet-bulb-temperature-app-1.streamlit.app/
   
-Feel free to contribute or provide feedback!
+Feel free to contribute or provide your feedback!
